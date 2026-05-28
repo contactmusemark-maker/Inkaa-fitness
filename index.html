@@ -75,7 +75,85 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 @keyframes barLoad { to { width: 100%; } }
 @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 
-/* ===================== LOGIN SCREEN ===================== */
+/* ===================== ALARM OVERLAY ===================== */
+#alarmOverlay {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: #0a0a0a;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 32px 24px;
+}
+#alarmOverlay.show { display: flex; }
+
+.alarm-pulse-ring {
+  position: relative; width: 160px; height: 160px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 32px;
+}
+.alarm-pulse-ring::before,
+.alarm-pulse-ring::after {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 50%; border: 2px solid var(--inkaa-red);
+  animation: alarmRipple 1.8s ease-out infinite;
+}
+.alarm-pulse-ring::after { animation-delay: 0.9s; }
+@keyframes alarmRipple {
+  0%   { transform: scale(0.7); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.alarm-inner-circle {
+  width: 110px; height: 110px; border-radius: 50%;
+  background: var(--inkaa-red);
+  display: flex; align-items: center; justify-content: center;
+  animation: alarmBeat 0.6s ease infinite alternate;
+  box-shadow: 0 0 40px rgba(204,61,42,0.5);
+}
+@keyframes alarmBeat {
+  from { transform: scale(1);    box-shadow: 0 0 30px rgba(204,61,42,0.4); }
+  to   { transform: scale(1.06); box-shadow: 0 0 55px rgba(204,61,42,0.7); }
+}
+.alarm-bell-icon {
+  animation: alarmShake 0.5s ease infinite;
+}
+@keyframes alarmShake {
+  0%,100% { transform: rotate(0deg); }
+  20%     { transform: rotate(-18deg); }
+  40%     { transform: rotate(18deg); }
+  60%     { transform: rotate(-12deg); }
+  80%     { transform: rotate(12deg); }
+}
+.alarm-time {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 72px; letter-spacing: 0.04em;
+  color: var(--text); line-height: 1;
+  margin-bottom: 6px;
+}
+.alarm-label {
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--inkaa-red); margin-bottom: 8px;
+}
+.alarm-message {
+  font-size: 15px; color: var(--muted); line-height: 1.6;
+  max-width: 280px; margin-bottom: 44px;
+}
+.alarm-dismiss-btn {
+  width: 100%; max-width: 320px;
+  padding: 18px; border-radius: 16px;
+  background: var(--inkaa-red); color: #fff;
+  border: none; font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 0.12em;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(204,61,42,0.4);
+}
+.alarm-dismiss-btn:active { transform: scale(0.97); }
+.alarm-snooze-btn {
+  margin-top: 14px; width: 100%; max-width: 320px;
+  padding: 13px; border-radius: 12px;
+  background: var(--bg2); color: var(--muted);
+  border: 1px solid var(--border); font-family: 'DM Sans', sans-serif;
+  font-size: 14px; cursor: pointer; transition: all 0.15s;
+}
+.alarm-snooze-btn:active { transform: scale(0.97); }
 #loginScreen {
   position: fixed; inset: 0; z-index: 900;
   background: #0a0a0a;
@@ -1878,26 +1956,155 @@ function adjustWeek(dir) {
 
 function toggleNotif(el) { el.classList.toggle('on'); }
 
-// ===== SHIFT & NOTIFICATION SYSTEM =====
+// =====================================================
+// ALARM & SHIFT SYSTEM
+// =====================================================
 let selectedShift = localStorage.getItem('inkaa_shift') || 'morning';
+let alarmAudioCtx = null;
+let alarmNodes = [];
+let snoozeTimeout = null;
+let alarmFired = {};   // track which alarms already fired today
 
 const SHIFT_SCHEDULES = {
   morning: {
-    workout:   { hour: 6,  min: 0,  label: '6:00 AM' },
-    nutrition: { hour: 7,  min: 30, label: '7:30 AM' },
-    checkin:   { hour: 21, min: 0,  label: '9:00 PM'  }
+    workout:   { hour: 6,  min: 0,  label: '6:00 AM',  alarm: true  },
+    nutrition: { hour: 7,  min: 30, label: '7:30 AM',  alarm: false },
+    checkin:   { hour: 21, min: 0,  label: '9:00 PM',  alarm: false }
   },
   night: {
-    workout:   { hour: 19, min: 0,  label: '7:00 PM' },
-    nutrition: { hour: 13, min: 0,  label: '1:00 PM' },
-    checkin:   { hour: 22, min: 0,  label: '10:00 PM' }
+    workout:   { hour: 19, min: 0,  label: '7:00 PM',  alarm: true  },
+    nutrition: { hour: 13, min: 0,  label: '1:00 PM',  alarm: false },
+    checkin:   { hour: 22, min: 0,  label: '10:00 PM', alarm: false }
   }
 };
 
+// ---- Audio Alarm (Web Audio API — works offline) ----
+function startAlarmSound() {
+  try {
+    alarmAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let startTime = alarmAudioCtx.currentTime;
+
+    function scheduleBeepCycle(t) {
+      // 3 rapid beeps, then 0.6s gap, repeat
+      for (let b = 0; b < 3; b++) {
+        const osc  = alarmAudioCtx.createOscillator();
+        const gain = alarmAudioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(alarmAudioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = b % 2 === 0 ? 880 : 1100;
+        const on  = t + b * 0.22;
+        const off = on + 0.18;
+        gain.gain.setValueAtTime(0, on);
+        gain.gain.linearRampToValueAtTime(0.7, on + 0.02);
+        gain.gain.setValueAtTime(0.7, off - 0.02);
+        gain.gain.linearRampToValueAtTime(0, off);
+        osc.start(on);
+        osc.stop(off + 0.05);
+        alarmNodes.push(osc);
+      }
+      return t + 3 * 0.22 + 0.6;
+    }
+
+    // Schedule 60 seconds of alarm cycles
+    let t = startTime + 0.1;
+    for (let i = 0; i < 50; i++) { t = scheduleBeepCycle(t); }
+  } catch(e) { console.warn('Audio alarm error:', e); }
+}
+
+function stopAlarmSound() {
+  alarmNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+  alarmNodes = [];
+  if (alarmAudioCtx) {
+    alarmAudioCtx.close().catch(()=>{});
+    alarmAudioCtx = null;
+  }
+}
+
+// ---- Alarm Overlay ----
+function triggerAlarm(type) {
+  const s = SHIFT_SCHEDULES[selectedShift];
+  const t = s[type];
+  if (!t) return;
+
+  const isMorning = selectedShift === 'morning';
+  const overlay = document.getElementById('alarmOverlay');
+  const timeEl  = document.getElementById('alarmTimeDisplay');
+  const labelEl = document.getElementById('alarmShiftLabel');
+  const msgEl   = document.getElementById('alarmMessage');
+
+  // Format current time
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  timeEl.textContent  = `${h % 12 || 12}:${String(m).padStart(2,'0')}`;
+  labelEl.textContent = type === 'workout'
+    ? (isMorning ? '🌅 Morning Workout' : '🌙 Evening Workout')
+    : type === 'nutrition' ? '🥗 Meal Time' : '✅ Daily Check-in';
+  msgEl.textContent = type === 'workout'
+    ? (isMorning ? 'Time to wake up and crush it!\nYour transformation starts now.' : 'Evening workout time!\nGet moving — you got this.')
+    : type === 'nutrition' ? 'Don\'t forget to log your meals.' : 'How did today go? Log your check-in.';
+
+  overlay.classList.add('show');
+
+  // Lock screen awake (if supported)
+  if (navigator.wakeLock) {
+    navigator.wakeLock.request('screen').catch(()=>{});
+  }
+
+  startAlarmSound();
+
+  // Also fire OS notification (works even if app is backgrounded)
+  if (Notification.permission === 'granted') {
+    const notif = new Notification('⏰ INKAA FITNESS ALARM', {
+      body: labelEl.textContent + '\nTap to open and dismiss.',
+      icon: 'app_logo.png',
+      badge: 'app_logo.png',
+      requireInteraction: true,
+      tag: 'inkaa-alarm',
+      vibrate: [300, 100, 300, 100, 300]
+    });
+    notif.onclick = () => { window.focus(); notif.close(); };
+  }
+}
+
+function dismissAlarm() {
+  document.getElementById('alarmOverlay').classList.remove('show');
+  stopAlarmSound();
+  clearTimeout(snoozeTimeout);
+  // Mark alarm as dismissed for today so it doesn't re-fire
+  const key = `alarm_dismissed_${new Date().toDateString()}_${selectedShift}`;
+  localStorage.setItem(key, '1');
+}
+
+function snoozeAlarm() {
+  document.getElementById('alarmOverlay').classList.remove('show');
+  stopAlarmSound();
+  clearTimeout(snoozeTimeout);
+  // Show snooze toast
+  showToast('😴 Snoozed for 5 minutes');
+  snoozeTimeout = setTimeout(() => {
+    triggerAlarm('workout');
+  }, 5 * 60 * 1000);
+}
+
+function showToast(msg) {
+  let t = document.getElementById('inkaaToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'inkaaToast';
+    t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:30px;font-size:13px;z-index:9998;white-space:nowrap;transition:opacity 0.3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._hide);
+  t._hide = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+
+// ---- Shift Selection ----
 function selectShift(shift) {
   selectedShift = shift;
   localStorage.setItem('inkaa_shift', shift);
-  // Countdown screen buttons
   const mb = document.getElementById('shiftMorning');
   const nb = document.getElementById('shiftNight');
   if (mb) mb.classList.toggle('active', shift === 'morning');
@@ -1905,121 +2112,129 @@ function selectShift(shift) {
   const s = SHIFT_SCHEDULES[shift];
   const statusEl = document.getElementById('cdNotifStatus');
   if (statusEl) statusEl.textContent =
-    `Reminders: Workout ${s.workout.label} · Nutrition ${s.nutrition.label} · Check-in ${s.checkin.label}`;
+    `Alarm at ${s.workout.label} · Nutrition ${s.nutrition.label} · Check-in ${s.checkin.label}`;
   updateSettingsReminders();
   syncSettingsShiftButtons();
 }
 
 function selectShiftSettings(shift) {
   selectShift(shift);
-  if ('Notification' in window && Notification.permission === 'granted') {
+  if (Notification.permission === 'granted') {
     scheduleShiftNotifications();
     new Notification('INKAA FITNESS', {
-      body: `Switched to ${shift === 'morning' ? '🌅 Morning' : '🌙 Night'} shift schedule!`,
+      body: `Switched to ${shift === 'morning' ? '🌅 Morning (alarm 6 AM)' : '🌙 Night (alarm 7 PM)'} shift!`,
       icon: 'app_logo.png'
     });
   }
 }
 
 function syncSettingsShiftButtons() {
-  const am = document.getElementById('settingShiftMorning');
-  const pm = document.getElementById('settingShiftNight');
+  const am  = document.getElementById('settingShiftMorning');
+  const pm  = document.getElementById('settingShiftNight');
   const lbl = document.getElementById('settingShiftLabel');
   if (!am || !pm) return;
   if (selectedShift === 'morning') {
-    am.style.borderColor = 'var(--inkaa-red)'; am.style.background = 'rgba(204,61,42,0.15)'; am.style.color = 'var(--inkaa-red)';
-    pm.style.borderColor = 'var(--border)'; pm.style.background = 'var(--bg3)'; pm.style.color = 'var(--muted)';
-    if (lbl) lbl.textContent = 'Morning Shift · Workout 6 AM';
+    am.style.cssText += ';border-color:var(--inkaa-red);background:rgba(204,61,42,0.15);color:var(--inkaa-red)';
+    pm.style.cssText += ';border-color:var(--border);background:var(--bg3);color:var(--muted)';
+    if (lbl) lbl.textContent = 'Morning Shift · Alarm 6:00 AM';
   } else {
-    pm.style.borderColor = 'var(--inkaa-red)'; pm.style.background = 'rgba(204,61,42,0.15)'; pm.style.color = 'var(--inkaa-red)';
-    am.style.borderColor = 'var(--border)'; am.style.background = 'var(--bg3)'; am.style.color = 'var(--muted)';
-    if (lbl) lbl.textContent = 'Night Shift · Workout 7 PM';
+    pm.style.cssText += ';border-color:var(--inkaa-red);background:rgba(204,61,42,0.15);color:var(--inkaa-red)';
+    am.style.cssText += ';border-color:var(--border);background:var(--bg3);color:var(--muted)';
+    if (lbl) lbl.textContent = 'Night Shift · Alarm 7:00 PM';
   }
 }
 
-// Restore saved shift on load
 function initShiftUI() {
   const saved = localStorage.getItem('inkaa_shift') || 'morning';
   selectShift(saved);
-  // Reflect notification permission state
-  if ('Notification' in window && Notification.permission === 'granted') {
+  if (Notification.permission === 'granted') {
     const btn = document.getElementById('cdNotifBtn');
-    if (btn) { btn.classList.add('granted'); btn.textContent = '✓ Notifications Active'; }
+    if (btn) { btn.classList.add('granted'); btn.innerHTML = '✓ Alarm & Notifications Active'; }
   }
 }
 
+// ---- Notification Permission + Alarm Scheduling ----
 function setupNotifications() {
   if (!('Notification' in window)) {
-    alert('Add this app to your home screen first for push notifications.');
+    alert('Add this app to your home screen first for notifications.');
     return;
   }
   Notification.requestPermission().then(permission => {
-    const btn = document.getElementById('cdNotifBtn');
+    const btn      = document.getElementById('cdNotifBtn');
     const statusEl = document.getElementById('cdNotifStatus');
     if (permission === 'granted') {
       btn.classList.add('granted');
-      btn.innerHTML = '✓ Notifications Active';
+      btn.innerHTML = '✓ Alarm & Notifications Active';
       const s = SHIFT_SCHEDULES[selectedShift];
-      statusEl.textContent = `Set for ${selectedShift} shift — Workout ${s.workout.label} · Check-in ${s.checkin.label}`;
-      // Fire a welcome notification immediately
+      statusEl.textContent = `Alarm set for ${s.workout.label} · Check-in ${s.checkin.label}`;
       new Notification('INKAA FITNESS 💪', {
-        body: `${selectedShift === 'morning' ? '🌅 Morning' : '🌙 Night'} shift set! Program starts June 1, 2026.`,
+        body: `${selectedShift === 'morning' ? '🌅 Morning alarm set for 6:00 AM' : '🌙 Night alarm set for 7:00 PM'} — ready to go!`,
         icon: 'app_logo.png',
         badge: 'app_logo.png'
       });
       scheduleShiftNotifications();
     } else {
-      btn.disabled = false;
-      statusEl.textContent = '⚠ Permission denied — enable in browser settings';
+      if (btn) btn.disabled = false;
+      if (statusEl) statusEl.textContent = '⚠ Permission denied — enable in browser settings';
     }
   });
 }
 
 function scheduleShiftNotifications() {
-  // Use setInterval to check time every minute and fire notifications
-  const schedule = SHIFT_SCHEDULES[selectedShift];
-  // Store schedule in localStorage for SW to pick up
   localStorage.setItem('inkaa_notif_schedule', JSON.stringify({
     shift: selectedShift,
-    schedule: schedule,
+    schedule: SHIFT_SCHEDULES[selectedShift],
     enabled: true
   }));
 
-  // Also set up client-side interval-based reminders for this session
   clearInterval(window._notifInterval);
   window._notifInterval = setInterval(() => {
-    if (Notification.permission !== 'granted') return;
     const now = new Date();
     const h = now.getHours(), m = now.getMinutes();
     const s = SHIFT_SCHEDULES[selectedShift];
-    const checks = [
-      { t: s.workout,   msg: selectedShift === 'morning' ? '🌅 Time for your morning workout! Crush it.' : '🌙 Evening workout time! Let\'s go.' },
-      { t: s.nutrition, msg: '🥗 Don\'t forget to log your meals today.' },
-      { t: s.checkin,   msg: '✅ Time for your daily check-in. How did today go?' }
-    ];
-    checks.forEach(c => {
-      if (h === c.t.hour && m === c.t.min) {
-        new Notification('INKAA FITNESS', { body: c.msg, icon: 'app_logo.png', badge: 'app_logo.png' });
+
+    // Check alarm (workout slot only)
+    if (s.workout.alarm) {
+      const dismissKey = `alarm_dismissed_${now.toDateString()}_${selectedShift}`;
+      const alreadyDismissed = localStorage.getItem(dismissKey);
+      if (h === s.workout.hour && m === s.workout.min && !alreadyDismissed) {
+        triggerAlarm('workout');
       }
-    });
-  }, 60000);
+    }
+
+    // Non-alarm notifications
+    const checks = [
+      { t: s.nutrition, msg: '🥗 Time to log your meals!',           type: 'nutrition' },
+      { t: s.checkin,   msg: '✅ Daily check-in time. How\'d it go?', type: 'checkin'  }
+    ];
+    if (Notification.permission === 'granted') {
+      checks.forEach(c => {
+        if (h === c.t.hour && m === c.t.min) {
+          const nKey = `notif_${now.toDateString()}_${c.type}`;
+          if (!localStorage.getItem(nKey)) {
+            localStorage.setItem(nKey, '1');
+            new Notification('INKAA FITNESS', {
+              body: c.msg, icon: 'app_logo.png', badge: 'app_logo.png'
+            });
+          }
+        }
+      });
+    }
+  }, 30000); // check every 30s for accuracy
 }
 
-// Also update settings screen reminder times to reflect shift
 function updateSettingsReminders() {
   const s = SHIFT_SCHEDULES[selectedShift];
   const w = document.getElementById('settingWorkoutTime');
   const n = document.getElementById('settingNutritionTime');
   const c = document.getElementById('settingCheckinTime');
-  if (w) w.textContent = `${s.workout.label} daily`;
+  if (w) w.textContent = `${s.workout.label} — ALARM`;
   if (n) n.textContent = `${s.nutrition.label} daily`;
   if (c) c.textContent = `${s.checkin.label} daily`;
   syncSettingsShiftButtons();
 }
 
-function requestNotifications() {
-  setupNotifications();
-}
+function requestNotifications() { setupNotifications(); }
 
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -2037,7 +2252,15 @@ function resetAll() {
 // =====================================================
 // INIT
 // =====================================================
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  // Listen for alarm dismiss from notification tap
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'ALARM_DISMISS') {
+      dismissAlarm();
+    }
+  });
+}
 
 // Show splash, then check session
 window.addEventListener('load', () => {
@@ -2062,5 +2285,32 @@ window.addEventListener('load', () => {
   }, 2600);
 });
 </script>
+
+<!-- ===== ALARM OVERLAY ===== -->
+<div id="alarmOverlay">
+  <div class="alarm-pulse-ring">
+    <div class="alarm-inner-circle">
+      <span class="alarm-bell-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </span>
+    </div>
+  </div>
+  <div class="alarm-time" id="alarmTimeDisplay">6:00</div>
+  <div class="alarm-label" id="alarmShiftLabel">Morning Workout</div>
+  <div class="alarm-message" id="alarmMessage">Time to wake up and crush it!<br>Your transformation starts now.</div>
+  <button class="alarm-dismiss-btn" onclick="dismissAlarm()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    I'M AWAKE — STOP ALARM
+  </button>
+  <button class="alarm-snooze-btn" onclick="snoozeAlarm()">
+    😴 &nbsp;Snooze 5 minutes
+  </button>
+</div>
+
 </body>
 </html>
