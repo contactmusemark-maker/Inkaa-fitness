@@ -1,0 +1,26 @@
+{
+  "name": "INKAA FITNESS",
+  "short_name": "INKAA",
+  "description": "INKAA FITNESS — 12-Week Body Transformation Tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230a0a0a' rx='32'/><circle cx='38' cy='38' r='18' fill='%23cc3d2a'/><rect x='26' y='60' width='24' height='90' fill='%23fff'/><rect x='70' y='60' width='20' height='90' fill='%23fff'/><polygon points='90,60 110,60 110,150 90,150 90,110 110,60' fill='%23fff'/><rect x='90' y='60' width='20' height='90' fill='%23fff'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "sports"],
+  "shortcuts": [
+    {
+      "name": "Today's Workout",
+      "url": "./index.html",
+      "description": "Jump to today's session"
+    }
+  ]
+}
