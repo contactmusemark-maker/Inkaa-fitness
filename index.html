@@ -606,6 +606,155 @@ select option { background: #1e1e1e; }
 /* Sync status indicator */
 .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 5px; animation: syncPulse 2s ease infinite; }
 @keyframes syncPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* ===================== PIN / BIOMETRIC LOCK ===================== */
+#pinScreen {
+  position: fixed; inset: 0; z-index: 950;
+  background: #0a0a0a;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px;
+}
+#pinScreen.show { display: flex; }
+
+.pin-logo { width: 110px; height: auto; margin-bottom: 8px; animation: fadeUp 0.5s ease both; }
+.pin-user-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+  animation: fadeUp 0.5s ease 0.1s both;
+}
+.pin-user-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--inkaa-red); display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: #fff; overflow: hidden;
+}
+.pin-user-avatar img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+.pin-user-name { font-size: 14px; font-weight: 500; }
+.pin-user-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.pin-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px; letter-spacing: 0.06em;
+  color: var(--text); text-align: center; margin-bottom: 6px;
+  animation: fadeUp 0.5s ease 0.15s both;
+}
+.pin-sub {
+  font-size: 12px; color: var(--muted); text-align: center;
+  margin-bottom: 28px; animation: fadeUp 0.5s ease 0.2s both;
+}
+
+/* PIN dots */
+.pin-dots {
+  display: flex; gap: 14px; margin-bottom: 32px;
+  animation: fadeUp 0.5s ease 0.25s both;
+}
+.pin-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border); background: transparent;
+  transition: all 0.15s;
+}
+.pin-dot.filled { background: var(--inkaa-red); border-color: var(--inkaa-red); transform: scale(1.1); }
+.pin-dot.error  { background: var(--red); border-color: var(--red); animation: pinShake 0.4s ease; }
+
+@keyframes pinShake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-6px); }
+  40%     { transform: translateX(6px); }
+  60%     { transform: translateX(-4px); }
+  80%     { transform: translateX(4px); }
+}
+
+/* Number pad */
+.pin-pad {
+  display: grid; grid-template-columns: repeat(3, 72px);
+  gap: 12px; margin-bottom: 20px;
+  animation: fadeUp 0.5s ease 0.3s both;
+}
+.pin-key {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--bg2); border: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.12s; user-select: none;
+  -webkit-user-select: none;
+}
+.pin-key:active { background: var(--bg3); transform: scale(0.93); border-color: var(--inkaa-red); }
+.pin-key.pin-key-del { background: transparent; border-color: transparent; }
+.pin-key.pin-key-del:active { background: var(--bg2); }
+.pin-key-num  { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--text); line-height: 1; }
+.pin-key-sub  { font-size: 8px; color: var(--muted); letter-spacing: 0.1em; margin-top: 1px; }
+
+/* Biometric button */
+.pin-bio-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: 30px;
+  border: 1px solid var(--border); background: var(--bg2);
+  color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: all 0.15s; margin-bottom: 20px;
+  animation: fadeUp 0.5s ease 0.35s both;
+}
+.pin-bio-btn:active { border-color: var(--inkaa-red); color: var(--inkaa-red); }
+.pin-bio-btn.hidden { display: none; }
+
+.pin-switch-user {
+  font-size: 12px; color: var(--muted); text-align: center;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  animation: fadeUp 0.5s ease 0.4s both;
+}
+.pin-switch-user:active { color: var(--text); }
+
+.pin-error-msg {
+  font-size: 12px; color: var(--red); text-align: center;
+  min-height: 18px; margin-bottom: 6px;
+  animation: fadeUp 0.3s ease both;
+}
+
+/* PIN Setup overlay (shown once after first login) */
+#pinSetupScreen {
+  position: fixed; inset: 0; z-index: 960;
+  background: #0a0a0a;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px;
+}
+#pinSetupScreen.show { display: flex; }
+
+/* ===================== FUEL PAGE ===================== */
+.fuel-meal-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: all 0.15s;
+}
+.fuel-meal-item:last-of-type { border-bottom: none; }
+.fuel-meal-item:active { opacity: 0.75; }
+.fuel-check {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; background: var(--bg3);
+}
+.fuel-check.done {
+  background: var(--green); border-color: var(--green);
+}
+.fuel-check.done::after {
+  content: '';
+  display: block; width: 7px; height: 5px;
+  border-left: 2px solid #000; border-bottom: 2px solid #000;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.fuel-info { flex: 1; }
+.fuel-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.fuel-qty { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.fuel-macros { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.fuel-kcal { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--inkaa-red); }
+.fuel-prot { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); }
+.fuel-meal-item.done .fuel-name { text-decoration: line-through; opacity: 0.5; }
+.fuel-meal-item.done .fuel-qty { opacity: 0.4; }
+.fuel-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0 2px; margin-top: 4px;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); border-top: 1px solid var(--border);
+}
+.fuel-total-row span:last-child { font-family: 'DM Mono', monospace; color: var(--text); font-size: 11px; text-transform: none; letter-spacing: 0; }
+
 </style>
 </head>
 <body>
@@ -656,6 +805,22 @@ select option { background: #1e1e1e; }
         <div class="user-card-info">
           <div class="user-card-name">Samuvel</div>
           <div class="user-card-email">Samuvel@inkaastudio.com</div>
+        </div>
+        <div class="user-card-check"></div>
+      </div>
+      <div class="user-card" id="uc-joe" onclick="selectUser('joe')">
+        <div class="user-avatar"><img src="joe.png" alt="Joe" onerror="this.parentElement.textContent='JO'"></div>
+        <div class="user-card-info">
+          <div class="user-card-name">Joe</div>
+          <div class="user-card-email">joe@inkaastudio.com</div>
+        </div>
+        <div class="user-card-check"></div>
+      </div>
+      <div class="user-card" id="uc-karthick" onclick="selectUser('karthick')">
+        <div class="user-avatar"><img src="karthick.png" alt="Karthick" onerror="this.parentElement.textContent='KA'"></div>
+        <div class="user-card-info">
+          <div class="user-card-name">Karthick</div>
+          <div class="user-card-email">karthick@inkaastudio.com</div>
         </div>
         <div class="user-card-check"></div>
       </div>
@@ -970,18 +1135,229 @@ select option { background: #1e1e1e; }
       <div class="header-label">Nutrition</div>
       <div class="header-title">Fuel Your<br>Gains</div>
     </div>
+
+    <!-- Macro Summary -->
     <div class="card">
-      <div class="card-head"><span class="card-title">Today's Intake</span></div>
+      <div class="card-head">
+        <span class="card-title">Today's Macros</span>
+        <span style="font-size:11px;color:var(--muted)" id="fuelCalDisplay">0 / 1800 kcal</span>
+      </div>
       <div class="card-body">
-        <div id="nutritionMealList"></div>
-        <button class="add-meal-btn" onclick="openMealModal()">+ Add meal</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+          <div class="stat"><div class="stat-val" id="fuelP" style="color:var(--green);font-size:16px">0g</div><div class="stat-lbl">Protein</div></div>
+          <div class="stat"><div class="stat-val" id="fuelC" style="color:var(--accent3);font-size:16px">0g</div><div class="stat-lbl">Carbs</div></div>
+          <div class="stat"><div class="stat-val" id="fuelF" style="color:var(--accent);font-size:16px">0g</div><div class="stat-lbl">Fat</div></div>
+        </div>
+        <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
+          <div id="fuelCalBar" style="height:100%;background:var(--inkaa-red);border-radius:3px;width:0%;transition:width 0.4s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--muted)">
+          <span>0 kcal logged</span><span>Target: 1800 kcal</span>
+        </div>
       </div>
     </div>
+
+    <!-- BREAKFAST -->
     <div class="card">
-      <div class="card-head"><span class="card-title">Macro Breakdown</span></div>
-      <div class="card-body" id="nutritionMacros"></div>
+      <div class="card-head">
+        <span style="font-size:13px;font-weight:600">🌅 Breakfast</span>
+        <span id="fuel-done-breakfast" style="font-size:10px;color:var(--muted)">0/3 done</span>
+      </div>
+      <div class="card-body" style="padding:8px 14px">
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('breakfast',0)">
+          <div class="fuel-check" id="fcheck-breakfast-0"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Boiled Eggs</div>
+            <div class="fuel-qty">3 whole eggs · boiled</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">210 kcal</span>
+            <span class="fuel-prot">18g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('breakfast',1)">
+          <div class="fuel-check" id="fcheck-breakfast-1"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Oats</div>
+            <div class="fuel-qty">80g dry oats · cooked with water</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">290 kcal</span>
+            <span class="fuel-prot">10g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('breakfast',2)">
+          <div class="fuel-check" id="fcheck-breakfast-2"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Banana</div>
+            <div class="fuel-qty">1 medium banana · ~120g</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">105 kcal</span>
+            <span class="fuel-prot">1g P</span>
+          </div>
+        </div>
+        <div class="fuel-total-row">
+          <span>Breakfast Total</span>
+          <span>~605 kcal · 29g protein</span>
+        </div>
+      </div>
     </div>
+
+    <!-- LUNCH -->
+    <div class="card">
+      <div class="card-head">
+        <span style="font-size:13px;font-weight:600">☀️ Lunch</span>
+        <span id="fuel-done-lunch" style="font-size:10px;color:var(--muted)">0/4 done</span>
+      </div>
+      <div class="card-body" style="padding:8px 14px">
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('lunch',0)">
+          <div class="fuel-check" id="fcheck-lunch-0"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Chicken Breast</div>
+            <div class="fuel-qty">150g cooked · grilled or boiled</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">248 kcal</span>
+            <span class="fuel-prot">46g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('lunch',1)">
+          <div class="fuel-check" id="fcheck-lunch-1"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">White Rice</div>
+            <div class="fuel-qty">150g cooked · ~60g raw</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">195 kcal</span>
+            <span class="fuel-prot">4g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('lunch',2)">
+          <div class="fuel-check" id="fcheck-lunch-2"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Eggs (side)</div>
+            <div class="fuel-qty">2 whole eggs · scrambled or boiled</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">140 kcal</span>
+            <span class="fuel-prot">12g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('lunch',3)">
+          <div class="fuel-check" id="fcheck-lunch-3"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Dal (toor/moong)</div>
+            <div class="fuel-qty">1 cup cooked · cumin tadka</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">180 kcal</span>
+            <span class="fuel-prot">12g P</span>
+          </div>
+        </div>
+        <div class="fuel-total-row">
+          <span>Lunch Total</span>
+          <span>~763 kcal · 74g protein</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SNACK -->
+    <div class="card">
+      <div class="card-head">
+        <span style="font-size:13px;font-weight:600">🥤 Snack</span>
+        <span id="fuel-done-snack" style="font-size:10px;color:var(--muted)">0/2 done</span>
+      </div>
+      <div class="card-body" style="padding:8px 14px">
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('snack',0)">
+          <div class="fuel-check" id="fcheck-snack-0"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Roasted Peanuts</div>
+            <div class="fuel-qty">50g · unsalted or lightly salted</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">280 kcal</span>
+            <span class="fuel-prot">13g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('snack',1)">
+          <div class="fuel-check" id="fcheck-snack-1"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Buttermilk</div>
+            <div class="fuel-qty">1 glass ~300ml · plain, low fat</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">50 kcal</span>
+            <span class="fuel-prot">3g P</span>
+          </div>
+        </div>
+        <div class="fuel-total-row">
+          <span>Snack Total</span>
+          <span>~330 kcal · 16g protein</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DINNER -->
+    <div class="card">
+      <div class="card-head">
+        <span style="font-size:13px;font-weight:600">🌙 Dinner</span>
+        <span id="fuel-done-dinner" style="font-size:10px;color:var(--muted)">0/3 done</span>
+      </div>
+      <div class="card-body" style="padding:8px 14px">
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('dinner',0)">
+          <div class="fuel-check" id="fcheck-dinner-0"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Chicken Curry</div>
+            <div class="fuel-qty">150g chicken · onion-tomato curry</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">280 kcal</span>
+            <span class="fuel-prot">38g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('dinner',1)">
+          <div class="fuel-check" id="fcheck-dinner-1"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Roti / Chapati</div>
+            <div class="fuel-qty">2 rotis · whole wheat, ~60g</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">180 kcal</span>
+            <span class="fuel-prot">5g P</span>
+          </div>
+        </div>
+        <div class="fuel-meal-item" onclick="toggleFuelMeal('dinner',2)">
+          <div class="fuel-check" id="fcheck-dinner-2"></div>
+          <div class="fuel-info">
+            <div class="fuel-name">Curd / Yoghurt</div>
+            <div class="fuel-qty">1 small cup ~150g · plain, low fat</div>
+          </div>
+          <div class="fuel-macros">
+            <span class="fuel-kcal">90 kcal</span>
+            <span class="fuel-prot">6g P</span>
+          </div>
+        </div>
+        <div class="fuel-total-row">
+          <span>Dinner Total</span>
+          <span>~550 kcal · 49g protein</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day Total -->
+    <div style="margin:0 14px 24px;padding:14px 16px;background:rgba(204,61,42,0.08);border:1px solid rgba(204,61,42,0.2);border-radius:12px">
+      <div style="font-size:10px;color:var(--inkaa-red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">📊 Full Day Target</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text)">1800</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">kcal</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green)">160g</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Protein</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent3)">180g</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Carbs</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent)">55g</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Fat</div></div>
+      </div>
+    </div>
+
   </div>
+
 
   <!-- SCREEN: CHECK-IN -->
   <div class="screen" id="screen-checkin">
@@ -1233,7 +1609,9 @@ try {
 const USERS = {
   mohan:   { name: 'Mohan',   email: 'Mohan@inkaastudio.com',        password: 'Captain@0320',  initials: 'MO', avatar: 'mohan.png' },
   martin:  { name: 'Martin',  email: 'MosesMartin@inkaastudio.com',  password: 'Harny@2513',    initials: 'MA', avatar: 'martin.png' },
-  samuvel: { name: 'Samuvel', email: 'Samuvel@inkaastudio.com',      password: 'Director@2904', initials: 'SA', avatar: 'samuvel.png' }
+  samuvel: { name: 'Samuvel', email: 'Samuvel@inkaastudio.com',      password: 'Director@2904', initials: 'SA', avatar: 'samuvel.png' },
+  joe:     { name: 'Joe',     email: 'joe@inkaastudio.com',          password: 'Joe@2026',      initials: 'JO', avatar: 'joe.png' },
+  karthick:{ name: 'Karthick',email: 'karthick@inkaastudio.com',     password: 'karthick@2026', initials: 'KA', avatar: 'karthick.png' }
 };
 
 let currentUser = null;
@@ -1319,14 +1697,16 @@ function afterLogin() {
     if (saved) scheduleShiftNotifications();
   }
 
-  // Check if countdown or dashboard
-  const now = new Date();
-  if (now < UNLOCK_DATE) {
-    document.getElementById('countdownScreen').classList.add('show');
-    startCountdown();
-  } else {
-    showDashboard();
-  }
+  // Gate behind PIN / biometric
+  checkPinRequired(() => {
+    const now = new Date();
+    if (now < UNLOCK_DATE) {
+      document.getElementById('countdownScreen').classList.add('show');
+      startCountdown();
+    } else {
+      showDashboard();
+    }
+  });
 }
 
 function showDashboard() {
@@ -1420,7 +1800,7 @@ function loadState() {
   state = saved ? JSON.parse(saved) : {
     currentWeek: 1, streak: 0, lastWorkoutDate: null,
     exerciseLogs: {}, meals: {}, measurements: {},
-    water: {}, checks: {}, checkins: {}, photos: {}
+    water: {}, checks: {}, checkins: {}, photos: {}, fuel: {}
   };
 }
 
@@ -1709,58 +2089,87 @@ function renderWorkout() {
 }
 
 // =====================================================
-// NUTRITION SCREEN
+// NUTRITION SCREEN — PRESET MEAL PLAN
 // =====================================================
+
+// Preset meals: [name, qty_desc, kcal, protein, carbs, fat]
+const PRESET_MEALS = {
+  breakfast: [
+    { name:'Boiled Eggs',    qty:'3 whole eggs · boiled',             kcal:210, p:18, c:1,  f:15 },
+    { name:'Oats',           qty:'80g dry oats · cooked with water',  kcal:290, p:10, c:54, f:5  },
+    { name:'Banana',         qty:'1 medium banana · ~120g',           kcal:105, p:1,  c:27, f:0  }
+  ],
+  lunch: [
+    { name:'Chicken Breast', qty:'150g cooked · grilled or boiled',   kcal:248, p:46, c:0,  f:5  },
+    { name:'White Rice',     qty:'150g cooked · ~60g raw',            kcal:195, p:4,  c:43, f:1  },
+    { name:'Eggs (side)',    qty:'2 whole eggs · scrambled or boiled', kcal:140, p:12, c:1,  f:10 },
+    { name:'Dal',            qty:'1 cup cooked · cumin tadka',         kcal:180, p:12, c:30, f:2  }
+  ],
+  snack: [
+    { name:'Roasted Peanuts',qty:'50g · unsalted or lightly salted',  kcal:280, p:13, c:8,  f:22 },
+    { name:'Buttermilk',     qty:'1 glass ~300ml · plain, low fat',   kcal:50,  p:3,  c:5,  f:1  }
+  ],
+  dinner: [
+    { name:'Chicken Curry',  qty:'150g chicken · onion-tomato curry', kcal:280, p:38, c:8,  f:10 },
+    { name:'Roti / Chapati', qty:'2 rotis · whole wheat, ~60g',       kcal:180, p:5,  c:36, f:2  },
+    { name:'Curd / Yoghurt', qty:'1 small cup ~150g · plain, low fat',kcal:90,  p:6,  c:8,  f:2  }
+  ]
+};
+
+function toggleFuelMeal(meal, idx) {
+  const key = todayKey();
+  if (!state.fuel) state.fuel = {};
+  if (!state.fuel[key]) state.fuel[key] = {};
+  if (!state.fuel[key][meal]) state.fuel[key][meal] = {};
+  state.fuel[key][meal][idx] = !state.fuel[key][meal][idx];
+  save();
+  renderNutrition();
+}
+
 function renderNutrition() {
   const key = todayKey();
-  const meals = state.meals[key] || [];
-  const totals = meals.reduce((a, m) => ({
-    cals: a.cals+(m.cals||0), protein: a.protein+(m.protein||0),
-    carbs: a.carbs+(m.carbs||0), fat: a.fat+(m.fat||0)
-  }), {cals:0,protein:0,carbs:0,fat:0});
+  const fuelToday = (state.fuel && state.fuel[key]) ? state.fuel[key] : {};
 
-  const listEl = document.getElementById('nutritionMealList');
-  listEl.innerHTML = meals.length === 0
-    ? '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px 0">No meals logged yet</div>'
-    : meals.map((m,i) => `
-        <div class="meal-item">
-          <div>
-            <div class="meal-name">${m.name}</div>
-            <div style="font-size:11px;color:var(--muted)">${m.protein}g P · ${m.carbs}g C · ${m.fat}g F</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="meal-cals">${m.cals} kcal</div>
-            <button onclick="deleteMeal(${i});renderNutrition()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0">×</button>
-          </div>
-        </div>
-      `).join('');
+  let totalCal = 0, totalP = 0, totalC = 0, totalF = 0;
 
-  const macroEl = document.getElementById('nutritionMacros');
-  macroEl.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div class="stat"><div class="stat-val" style="color:var(--inkaa-red)">${totals.cals}</div><div class="stat-lbl">Calories</div></div>
-      <div class="stat"><div class="stat-val" style="color:var(--green)">${totals.protein}g</div><div class="stat-lbl">Protein</div></div>
-      <div class="stat"><div class="stat-val" style="color:var(--accent3)">${totals.carbs}g</div><div class="stat-lbl">Carbs</div></div>
-      <div class="stat"><div class="stat-val" style="color:var(--accent)">${totals.fat}g</div><div class="stat-lbl">Fat</div></div>
-    </div>
-    <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:0.08em;text-transform:uppercase">Progress vs Targets</div>
-    ${[
-      { label:'Calories',  val:totals.cals,    target:1800, color:'var(--inkaa-red)' },
-      { label:'Protein',   val:totals.protein, target:160,  color:'var(--green)' },
-      { label:'Carbs',     val:totals.carbs,   target:180,  color:'var(--accent3)' },
-      { label:'Fat',       val:totals.fat,     target:55,   color:'var(--accent)' }
-    ].map(m => `
-      <div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="font-size:12px">${m.label}</span>
-          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)">${m.val} / ${m.target}</span>
-        </div>
-        <div class="macro-bar-wrap" style="height:6px">
-          <div class="macro-bar" style="background:${m.color};width:${Math.min(100,m.val/m.target*100)}%;height:100%"></div>
-        </div>
-      </div>
-    `).join('')}
-  `;
+  Object.keys(PRESET_MEALS).forEach(meal => {
+    const items = PRESET_MEALS[meal];
+    const done = fuelToday[meal] || {};
+    let doneCount = 0;
+
+    items.forEach((item, idx) => {
+      const checkEl = document.getElementById('fcheck-' + meal + '-' + idx);
+      const rowEl = checkEl ? checkEl.closest('.fuel-meal-item') : null;
+      if (done[idx]) {
+        doneCount++;
+        totalCal += item.kcal;
+        totalP   += item.p;
+        totalC   += item.c;
+        totalF   += item.f;
+        if (checkEl) checkEl.classList.add('done');
+        if (rowEl)   rowEl.classList.add('done');
+      } else {
+        if (checkEl) checkEl.classList.remove('done');
+        if (rowEl)   rowEl.classList.remove('done');
+      }
+    });
+
+    const label = document.getElementById('fuel-done-' + meal);
+    if (label) label.textContent = doneCount + '/' + items.length + ' done';
+    if (label) label.style.color = doneCount === items.length ? 'var(--green)' : 'var(--muted)';
+  });
+
+  // Update macro summary
+  const calEl  = document.getElementById('fuelCalDisplay');
+  const pEl    = document.getElementById('fuelP');
+  const cEl    = document.getElementById('fuelC');
+  const fEl    = document.getElementById('fuelF');
+  const barEl  = document.getElementById('fuelCalBar');
+  if (calEl) calEl.textContent = totalCal + ' / 1800 kcal';
+  if (pEl)   pEl.textContent   = totalP + 'g';
+  if (cEl)   cEl.textContent   = totalC + 'g';
+  if (fEl)   fEl.textContent   = totalF + 'g';
+  if (barEl) barEl.style.width = Math.min(100, (totalCal/1800)*100) + '%';
 }
 
 // =====================================================
@@ -2274,6 +2683,260 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+
+// =====================================================
+// PIN & BIOMETRIC LOCK SYSTEM
+// =====================================================
+let pinBuffer = '';
+let setupPinBuffer = '';
+let setupPinFirst = '';
+let setupPinStep = 'create'; // 'create' | 'confirm'
+let pinAttempts = 0;
+
+function pinKey(key) { return pinEntry(key); }
+function pinDel()    { pinBuffer = pinBuffer.slice(0,-1); renderPinDots(); }
+
+function pinEntry(key) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += key;
+  renderPinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(() => checkPin(), 120);
+  }
+}
+
+function renderPinDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('pd' + i);
+    if (!d) return;
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
+  document.getElementById('pinErrorMsg').textContent = '';
+}
+
+function checkPin() {
+  const stored = localStorage.getItem('inkaa_pin_' + currentUser.id);
+  if (pinBuffer === stored) {
+    pinAttempts = 0;
+    hidePinScreen();
+  } else {
+    pinAttempts++;
+    pinBuffer = '';
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('pd' + i);
+      if (d) { d.classList.remove('filled'); d.classList.add('error'); }
+    }
+    const msg = pinAttempts >= 5
+      ? 'Too many attempts — sign out and try again'
+      : 'Incorrect PIN · ' + (5 - pinAttempts) + ' attempts left';
+    document.getElementById('pinErrorMsg').textContent = msg;
+    if (pinAttempts >= 5) {
+      setTimeout(() => { hidePinScreen(); logout(); }, 1500);
+    }
+    setTimeout(() => {
+      for (let i = 0; i < 4; i++) {
+        const d = document.getElementById('pd' + i);
+        if (d) d.classList.remove('error');
+      }
+    }, 500);
+  }
+}
+
+function hidePinScreen() {
+  document.getElementById('pinScreen').classList.remove('show');
+  pinBuffer = '';
+  renderPinDots();
+  // Now show the actual app
+  afterPinSuccess();
+}
+
+let _afterPinCallback = null;
+function afterPinSuccess() {
+  if (_afterPinCallback) { _afterPinCallback(); _afterPinCallback = null; }
+}
+
+// ---- Biometric (WebAuthn / Face ID / Fingerprint) ----
+async function pinBio() {
+  const credId = localStorage.getItem('inkaa_bio_cred_' + currentUser.id);
+  if (!credId || !window.PublicKeyCredential) return;
+  try {
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const assertion = await navigator.credentials.get({
+      publicKey: {
+        challenge,
+        allowCredentials: [{ id: base64ToUint8(credId), type: 'public-key' }],
+        userVerification: 'required',
+        timeout: 30000
+      }
+    });
+    if (assertion) hidePinScreen();
+  } catch(e) {
+    document.getElementById('pinErrorMsg').textContent = 'Biometric failed — use PIN';
+  }
+}
+
+async function registerBiometric(userId) {
+  if (!window.PublicKeyCredential) return false;
+  try {
+    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (!available) return false;
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const cred = await navigator.credentials.create({
+      publicKey: {
+        challenge,
+        rp: { name: 'INKAA FITNESS', id: location.hostname || 'localhost' },
+        user: { id: new TextEncoder().encode(userId), name: userId, displayName: userId },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+        timeout: 30000
+      }
+    });
+    if (cred) {
+      localStorage.setItem('inkaa_bio_cred_' + userId, uint8ToBase64(new Uint8Array(cred.rawId)));
+      return true;
+    }
+  } catch(e) { return false; }
+  return false;
+}
+
+function base64ToUint8(b64) {
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+function uint8ToBase64(arr) {
+  return btoa(String.fromCharCode(...arr));
+}
+
+function showPinScreen(callback) {
+  _afterPinCallback = callback;
+  const u = currentUser;
+  // Set avatar
+  const av = document.getElementById('pinAvatar');
+  av.innerHTML = `<img src="${u.avatar}" alt="${u.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.textContent='${u.initials}'">`;
+  document.getElementById('pinUserName').textContent = u.name;
+  // Check biometric
+  const hasBio = !!localStorage.getItem('inkaa_bio_cred_' + u.id) && !!window.PublicKeyCredential;
+  const bioIcon = document.getElementById('pinBioIcon');
+  const bioBtn  = document.querySelector('.pin-key-del:first-of-type');
+  // Update bio icon style
+  if (bioIcon) bioIcon.style.opacity = hasBio ? '1' : '0.2';
+  pinBuffer = '';
+  renderPinDots();
+  document.getElementById('pinScreen').classList.add('show');
+  // Auto-trigger biometric if available
+  if (hasBio) setTimeout(pinBio, 400);
+}
+
+function switchUserFromPin() {
+  document.getElementById('pinScreen').classList.remove('show');
+  currentUser = null;
+  localStorage.removeItem('inkaa_session');
+  document.getElementById('loginScreen').classList.add('show');
+  selectedUserId = null;
+  document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
+}
+
+// ---- PIN SETUP ----
+function showPinSetup(callback) {
+  _afterPinCallback = callback;
+  setupPinBuffer = ''; setupPinFirst = ''; setupPinStep = 'create';
+  document.getElementById('setupPinTitle').textContent = 'SET YOUR PIN';
+  document.getElementById('setupPinSub').textContent = 'Choose a 4-digit PIN to lock the app';
+  document.getElementById('setupPinError').textContent = '';
+  renderSetupDots();
+  // Avatar
+  const u = currentUser;
+  const av = document.getElementById('setupPinAvatar');
+  av.innerHTML = `<img src="${u.avatar}" alt="${u.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.textContent='${u.initials}'">`;
+  document.getElementById('setupPinUserName').textContent = u.name;
+  document.getElementById('setupPinUserEmail').textContent = u.email;
+  document.getElementById('pinSetupScreen').classList.add('show');
+}
+
+function setupPinKey(key) {
+  if (setupPinBuffer.length >= 4) return;
+  setupPinBuffer += key;
+  renderSetupDots();
+  if (setupPinBuffer.length === 4) setTimeout(setupPinNext, 150);
+}
+
+function setupPinDel() {
+  setupPinBuffer = setupPinBuffer.slice(0, -1);
+  renderSetupDots();
+}
+
+function renderSetupDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('spd' + i);
+    if (d) d.classList.toggle('filled', i < setupPinBuffer.length);
+  }
+}
+
+async function setupPinNext() {
+  if (setupPinStep === 'create') {
+    setupPinFirst = setupPinBuffer;
+    setupPinBuffer = '';
+    setupPinStep = 'confirm';
+    document.getElementById('setupPinTitle').textContent = 'CONFIRM PIN';
+    document.getElementById('setupPinSub').textContent = 'Re-enter your PIN to confirm';
+    renderSetupDots();
+  } else {
+    // Confirm step
+    if (setupPinBuffer === setupPinFirst) {
+      localStorage.setItem('inkaa_pin_' + currentUser.id, setupPinBuffer);
+      document.getElementById('pinSetupScreen').classList.remove('show');
+      setupPinBuffer = ''; setupPinFirst = '';
+      // Offer biometric registration
+      if (window.PublicKeyCredential) {
+        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(() => false);
+        if (available) {
+          const useBio = confirm('Enable Face ID / Fingerprint unlock?');
+          if (useBio) await registerBiometric(currentUser.id);
+        }
+      }
+      afterPinSuccess();
+    } else {
+      // PIN mismatch
+      for (let i = 0; i < 4; i++) {
+        const d = document.getElementById('spd' + i);
+        if (d) { d.classList.remove('filled'); d.classList.add('error'); }
+      }
+      document.getElementById('setupPinError').textContent = "PINs don't match — try again";
+      setupPinBuffer = ''; setupPinFirst = ''; setupPinStep = 'create';
+      setTimeout(() => {
+        for (let i = 0; i < 4; i++) {
+          const d = document.getElementById('spd' + i);
+          if (d) d.classList.remove('error');
+        }
+        document.getElementById('setupPinTitle').textContent = 'SET YOUR PIN';
+        document.getElementById('setupPinSub').textContent = 'Choose a 4-digit PIN to lock the app';
+        document.getElementById('setupPinError').textContent = '';
+        renderSetupDots();
+      }, 700);
+    }
+  }
+}
+
+function skipPinSetup() {
+  document.getElementById('pinSetupScreen').classList.remove('show');
+  afterPinSuccess();
+}
+
+// ---- Hook into afterLogin ----
+function checkPinRequired(callback) {
+  const hasPin   = !!localStorage.getItem('inkaa_pin_' + currentUser.id);
+  if (!hasPin) {
+    // First time: set up PIN
+    showPinSetup(callback);
+  } else {
+    // Returning: ask PIN
+    showPinScreen(callback);
+  }
+}
+
+
 // Show splash, then check session
 window.addEventListener('load', () => {
   // Animated progress bar with percentage — 4 seconds total
@@ -2317,6 +2980,92 @@ window.addEventListener('load', () => {
   requestAnimationFrame(animateBar);
 });
 </script>
+
+
+<!-- ===== PIN LOCK SCREEN ===== -->
+<div id="pinScreen">
+  <img class="pin-logo" src="BLACK_BG.png" alt="INKAA FITNESS">
+  <div class="pin-user-row">
+    <div class="pin-user-avatar" id="pinAvatar">--</div>
+    <div>
+      <div class="pin-user-name" id="pinUserName">User</div>
+      <div class="pin-user-sub">Enter your PIN to continue</div>
+    </div>
+  </div>
+  <div class="pin-title" id="pinTitle">WELCOME BACK</div>
+  <div class="pin-sub" id="pinSub">Enter your 4-digit PIN</div>
+  <div class="pin-error-msg" id="pinErrorMsg"></div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-pad">
+    <div class="pin-key" onclick="pinKey('1')"><div class="pin-key-num">1</div></div>
+    <div class="pin-key" onclick="pinKey('2')"><div class="pin-key-num">2</div><div class="pin-key-sub">ABC</div></div>
+    <div class="pin-key" onclick="pinKey('3')"><div class="pin-key-num">3</div><div class="pin-key-sub">DEF</div></div>
+    <div class="pin-key" onclick="pinKey('4')"><div class="pin-key-num">4</div><div class="pin-key-sub">GHI</div></div>
+    <div class="pin-key" onclick="pinKey('5')"><div class="pin-key-num">5</div><div class="pin-key-sub">JKL</div></div>
+    <div class="pin-key" onclick="pinKey('6')"><div class="pin-key-num">6</div><div class="pin-key-sub">MNO</div></div>
+    <div class="pin-key" onclick="pinKey('7')"><div class="pin-key-num">7</div><div class="pin-key-sub">PQRS</div></div>
+    <div class="pin-key" onclick="pinKey('8')"><div class="pin-key-num">8</div><div class="pin-key-sub">TUV</div></div>
+    <div class="pin-key" onclick="pinKey('9')"><div class="pin-key-num">9</div><div class="pin-key-sub">WXYZ</div></div>
+    <div class="pin-key pin-key-del" onclick="pinBio()">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" id="pinBioIcon">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+    </div>
+    <div class="pin-key" onclick="pinKey('0')"><div class="pin-key-num">0</div></div>
+    <div class="pin-key pin-key-del" onclick="pinDel()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="13" y2="14"/><line x1="13" y1="9" x2="18" y2="14"/>
+      </svg>
+    </div>
+  </div>
+  <div class="pin-switch-user" onclick="switchUserFromPin()">↩ Sign in as different user</div>
+</div>
+
+<!-- ===== PIN SETUP SCREEN ===== -->
+<div id="pinSetupScreen">
+  <img class="pin-logo" src="BLACK_BG.png" alt="INKAA FITNESS">
+  <div class="pin-user-row">
+    <div class="pin-user-avatar" id="setupPinAvatar">--</div>
+    <div>
+      <div class="pin-user-name" id="setupPinUserName">User</div>
+      <div class="pin-user-sub" id="setupPinUserEmail">—</div>
+    </div>
+  </div>
+  <div class="pin-title" id="setupPinTitle">SET YOUR PIN</div>
+  <div class="pin-sub" id="setupPinSub">Choose a 4-digit PIN to lock the app</div>
+  <div class="pin-error-msg" id="setupPinError"></div>
+  <div class="pin-dots" id="setupPinDots">
+    <div class="pin-dot" id="spd0"></div>
+    <div class="pin-dot" id="spd1"></div>
+    <div class="pin-dot" id="spd2"></div>
+    <div class="pin-dot" id="spd3"></div>
+  </div>
+  <div class="pin-pad">
+    <div class="pin-key" onclick="setupPinKey('1')"><div class="pin-key-num">1</div></div>
+    <div class="pin-key" onclick="setupPinKey('2')"><div class="pin-key-num">2</div><div class="pin-key-sub">ABC</div></div>
+    <div class="pin-key" onclick="setupPinKey('3')"><div class="pin-key-num">3</div><div class="pin-key-sub">DEF</div></div>
+    <div class="pin-key" onclick="setupPinKey('4')"><div class="pin-key-num">4</div><div class="pin-key-sub">GHI</div></div>
+    <div class="pin-key" onclick="setupPinKey('5')"><div class="pin-key-num">5</div><div class="pin-key-sub">JKL</div></div>
+    <div class="pin-key" onclick="setupPinKey('6')"><div class="pin-key-num">6</div><div class="pin-key-sub">MNO</div></div>
+    <div class="pin-key" onclick="setupPinKey('7')"><div class="pin-key-num">7</div><div class="pin-key-sub">PQRS</div></div>
+    <div class="pin-key" onclick="setupPinKey('8')"><div class="pin-key-num">8</div><div class="pin-key-sub">TUV</div></div>
+    <div class="pin-key" onclick="setupPinKey('9')"><div class="pin-key-num">9</div><div class="pin-key-sub">WXYZ</div></div>
+    <div class="pin-key pin-key-del" style="opacity:0.3;pointer-events:none"></div>
+    <div class="pin-key" onclick="setupPinKey('0')"><div class="pin-key-num">0</div></div>
+    <div class="pin-key pin-key-del" onclick="setupPinDel()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="13" y2="14"/><line x1="13" y1="9" x2="18" y2="14"/>
+      </svg>
+    </div>
+  </div>
+  <div class="pin-switch-user" onclick="skipPinSetup()" style="color:var(--muted)">Skip for now (not recommended)</div>
+</div>
 
 <!-- ===== ALARM OVERLAY ===== -->
 <div id="alarmOverlay">
