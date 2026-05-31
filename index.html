@@ -6,9 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0a0a">
-<title>INKAA FITNESS</title>
-<link rel="icon" type="image/png" href="app_logo.png">
-<link rel="apple-touch-icon" href="app_logo.png">
+<title>iFitness</title>
+<link rel="icon" type="image/png" href="inkaa_fitness_black.png">
+<link rel="apple-touch-icon" href="inkaa_fitness_black.png">
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -763,7 +763,7 @@ select option { background: #1e1e1e; }
 <div id="splashScreen">
   <div class="splash-center">
     <div class="splash-logo-wrap">
-      <img class="splash-logo-img" src="BLACK_BG.png" alt="INKAA FITNESS">
+      <img class="splash-logo-img" src="BLACK_BG.png" alt="iFitness">
     </div>
     <div class="splash-tagline">12-Week Body Transformation</div>
   </div>
@@ -776,7 +776,7 @@ select option { background: #1e1e1e; }
 <!-- ===== LOGIN SCREEN ===== -->
 <div id="loginScreen">
   <div class="login-top">
-    <img class="login-logo" src="BLACK_BG.png" alt="INKAA FITNESS">
+    <img class="login-logo" src="BLACK_BG.png" alt="iFitness">
     <div class="login-welcome">WELCOME BACK<br>CHAMPION</div>
     <div class="login-sub">Sign in to your transformation</div>
   </div>
@@ -817,7 +817,7 @@ select option { background: #1e1e1e; }
         <div class="user-card-check"></div>
       </div>
       <div class="user-card" id="uc-karthick" onclick="selectUser('karthick')">
-        <div class="user-avatar"><img src="karthick.png" alt="Karthick" onerror="this.parentElement.textContent='KA'"></div>
+        <div class="user-avatar"><img src="karthik.png" alt="Karthick" onerror="this.parentElement.textContent='KA'"></div>
         <div class="user-card-info">
           <div class="user-card-name">Karthick</div>
           <div class="user-card-email">karthick@inkaastudio.com</div>
@@ -855,7 +855,7 @@ select option { background: #1e1e1e; }
     <div class="cd-user-name">Welcome, <strong id="cdUserName">Champion</strong></div>
   </div>
 
-  <img class="cd-logo-small" src="BLACK_BG.png" alt="INKAA FITNESS">
+  <img class="cd-logo-small" src="BLACK_BG.png" alt="iFitness">
 
   <div class="cd-headline">YOUR 12-WEEK<br><span>TRANSFORMATION</span><br>BEGINS SOON</div>
   <div class="cd-sub">Dashboard unlocks at program start — June 1, 2026</div>
@@ -1611,7 +1611,7 @@ const USERS = {
   martin:  { name: 'Martin',  email: 'MosesMartin@inkaastudio.com',  password: 'Harny@2513',    initials: 'MA', avatar: 'martin.png' },
   samuvel: { name: 'Samuvel', email: 'Samuvel@inkaastudio.com',      password: 'Director@2904', initials: 'SA', avatar: 'samuvel.png' },
   joe:     { name: 'Joe',     email: 'joe@inkaastudio.com',          password: 'Joe@2026',      initials: 'JO', avatar: 'joe.png' },
-  karthick:{ name: 'Karthick',email: 'karthick@inkaastudio.com',     password: 'karthick@2026', initials: 'KA', avatar: 'karthick.png' }
+  karthick:{ name: 'Karthick',email: 'karthick@inkaastudio.com',     password: 'karthick@2026', initials: 'KA', avatar: 'karthik.png' }
 };
 
 let currentUser = null;
@@ -2476,10 +2476,10 @@ function triggerAlarm(type) {
 
   // Also fire OS notification (works even if app is backgrounded)
   if (Notification.permission === 'granted') {
-    const notif = new Notification('⏰ INKAA FITNESS ALARM', {
+    const notif = new Notification('⏰ iFitness ALARM', {
       body: labelEl.textContent + '\nTap to open and dismiss.',
-      icon: 'app_logo.png',
-      badge: 'app_logo.png',
+      icon: 'inkaa_fitness_black.png',
+      badge: 'inkaa_fitness_black.png',
       requireInteraction: true,
       tag: 'inkaa-alarm',
       vibrate: [300, 100, 300, 100, 300]
@@ -2542,9 +2542,9 @@ function selectShiftSettings(shift) {
   selectShift(shift);
   if (Notification.permission === 'granted') {
     scheduleShiftNotifications();
-    new Notification('INKAA FITNESS', {
+    new Notification('iFitness', {
       body: `Switched to ${shift === 'morning' ? '🌅 Morning (alarm 6 AM)' : '🌙 Night (alarm 7 PM)'} shift!`,
-      icon: 'app_logo.png'
+      icon: 'inkaa_fitness_black.png'
     });
   }
 }
@@ -2588,10 +2588,10 @@ function setupNotifications() {
       btn.innerHTML = '✓ Alarm & Notifications Active';
       const s = SHIFT_SCHEDULES[selectedShift];
       statusEl.textContent = `Alarm set for ${s.workout.label} · Check-in ${s.checkin.label}`;
-      new Notification('INKAA FITNESS 💪', {
+      new Notification('iFitness 💪', {
         body: `${selectedShift === 'morning' ? '🌅 Morning alarm set for 6:00 AM' : '🌙 Night alarm set for 7:00 PM'} — ready to go!`,
-        icon: 'app_logo.png',
-        badge: 'app_logo.png'
+        icon: 'inkaa_fitness_black.png',
+        badge: 'inkaa_fitness_black.png'
       });
       scheduleShiftNotifications();
     } else {
@@ -2634,8 +2634,8 @@ function scheduleShiftNotifications() {
           const nKey = `notif_${now.toDateString()}_${c.type}`;
           if (!localStorage.getItem(nKey)) {
             localStorage.setItem(nKey, '1');
-            new Notification('INKAA FITNESS', {
-              body: c.msg, icon: 'app_logo.png', badge: 'app_logo.png'
+            new Notification('iFitness', {
+              body: c.msg, icon: 'inkaa_fitness_black.png', badge: 'inkaa_fitness_black.png'
             });
           }
         }
@@ -2785,7 +2785,7 @@ async function registerBiometric(userId) {
     const cred = await navigator.credentials.create({
       publicKey: {
         challenge,
-        rp: { name: 'INKAA FITNESS', id: location.hostname || 'localhost' },
+        rp: { name: 'iFitness', id: location.hostname || 'localhost' },
         user: { id: new TextEncoder().encode(userId), name: userId, displayName: userId },
         pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
         authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
@@ -2984,7 +2984,7 @@ window.addEventListener('load', () => {
 
 <!-- ===== PIN LOCK SCREEN ===== -->
 <div id="pinScreen">
-  <img class="pin-logo" src="BLACK_BG.png" alt="INKAA FITNESS">
+  <img class="pin-logo" src="BLACK_BG.png" alt="iFitness">
   <div class="pin-user-row">
     <div class="pin-user-avatar" id="pinAvatar">--</div>
     <div>
@@ -3029,7 +3029,7 @@ window.addEventListener('load', () => {
 
 <!-- ===== PIN SETUP SCREEN ===== -->
 <div id="pinSetupScreen">
-  <img class="pin-logo" src="BLACK_BG.png" alt="INKAA FITNESS">
+  <img class="pin-logo" src="BLACK_BG.png" alt="iFitness">
   <div class="pin-user-row">
     <div class="pin-user-avatar" id="setupPinAvatar">--</div>
     <div>

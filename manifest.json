@@ -1,7 +1,7 @@
 {
-  "name": "INKAA FITNESS",
-  "short_name": "INKAA",
-  "description": "INKAA FITNESS — 12-Week Body Transformation Tracker",
+  "name": "iFitness",
+  "short_name": "iFitness",
+  "description": "iFitness — 12-Week Body Transformation Tracker by INKAA",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",
@@ -9,25 +9,25 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "app_logo.png",
+      "src": "inkaa_fitness_black.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "app_logo.png",
+      "src": "inkaa_fitness_black.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "app_logo.png",
+      "src": "inkaa_fitness_icon_white_.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "app_logo.png",
+      "src": "inkaa_fitness_icon_white_.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
