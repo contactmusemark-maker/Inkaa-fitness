@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "inkaa_fitness_black.png",
+      "src": "inkaa_fitness_icon_white_.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "inkaa_fitness_black.png",
+      "src": "inkaa_fitness_icon_white_.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

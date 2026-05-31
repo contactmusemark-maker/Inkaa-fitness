@@ -2,7 +2,6 @@ const CACHE = 'ifitness-v1';
 const ASSETS = [
   './index.html',
   './manifest.json',
-  './inkaa_fitness_black.png',
   './inkaa_fitness_icon_white_.png'
 ];
 
